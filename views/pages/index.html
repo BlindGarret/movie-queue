@@ -1,0 +1,83 @@
+{{ block "index-page" . }}
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Entertainment Shopping List</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Entertainment Shopping List">
+	<meta name="author" content="BlindGarret">
+	<meta name="keywords" content="home, shopping, list, movie, tv, shows, page">
+	<script src="/scripts/htmx.min.js"></script>
+	<link rel="stylesheet" href="/styles/styles.css">
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			document.body.addEventListener('htmx:beforeSwap', function (event) {
+				if (event.detail.xhr.status === 422) {
+					event.detail.shouldSwap = true;
+					event.detail.isError = false;
+				}
+			});
+		})
+	</script>
+</head>
+
+<body>
+	<div id="error-toast">{{ template "error-toast" .Error }}</div>
+	{{ template "show-filter" .FilterFormData }}
+	{{ template "add-show-form" .AddFormData }}
+	<ul id="shows">
+		{{ template "show-set" .Shows }}
+	</ul>
+</body>
+
+</html>
+{{ end }}
+
+{{ block "show-filter" . }}
+<div id="filter">
+	<label for="filter">Filter:</label>
+	<input type="text" id="filter" name="filter" {{ if .Values.filter }} value="{{ .Values.filter }}" {{ end }}
+		hx-trigger="change, keyup delay:200ms, load" hx-target="#shows" hx-include="[name='filter']" hx-get="/shows">
+	<button hx-get="/forms/clear" hx-target="#filter" hx-swap="outerHTML"
+		hx-vals='js:{"template":"show-filter"}'>Clear</button>
+</div>
+{{ end }}
+
+{{ block "show-set" . }}
+{{ range . }}
+{{ template "show" . }}
+{{ end }}
+{{ end }}
+
+{{ block "add-show-form" . }}
+<form hx-post="/shows">
+	<label for="name">Name:</label>
+	<input type="text" id="name" name="name" {{ if .Values.name }} value="{{ .Values.name }}" {{ end }} required>
+	<select id="type" name="type" required>
+		<option value="movie" selected>Movie</option>
+		<option value="tv">TV Show</option>
+	</select>
+	<input type="submit" value="Add">
+</form>
+{{ end}}
+
+{{ block "show" . }}
+<li id="show-{{ .ID }}" class="show" style="display: flex;">
+	<span>{{ .Name }} ({{ .Type }})</span>
+	<button hx-indicator="#show-delete-indicator-{{ .ID }}" hx-delete="/shows/{{ .ID }}" hx-swap="outerHTML swap:3500ms"
+		hx-target="#show-{{ .ID }}" style="cursor: pointer;">Delete</button>
+	<div id="show-delete-indicator-{{ .ID }}" class="htmx-indicator">
+		<span>Deleting...</span>
+	</div>
+</li>
+{{ end }}
+
+{{ block "oob-show" . }}
+<div id="shows" hx-swap-oob="beforeend">
+	{{ template "show" . }}
+</div>
+
+{{ end }}
+```

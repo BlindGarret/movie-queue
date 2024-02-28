@@ -1,0 +1,28 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+services:
+  # test:
+  #   image: test
+  #   ports:
+  #     - 3000:2930
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+  #   env_file:
+  #     - .env
+  #     - .env.local.prod
+  db:
+    image: postgres:12
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: dbpass
+      POSTGRES_USER: dbuser
+      POSTGRES_DB: db
+    ports:
+      - '5432:5432'
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+

@@ -1,0 +1,6 @@
+{{ block "error-toast" . }}
+<div id="error-toast" hx-swap-oob="outerHTML">
+	<h1>{{ .Message }}</h1>
+</div>
+{{ end }}
+```
